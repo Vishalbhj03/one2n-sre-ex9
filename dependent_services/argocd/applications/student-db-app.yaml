@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: student-db
+  namespace: argocd
+spec:
+  project: one2n-project
+  source:
+    repoURL: 'https://github.com/Vishalbhj03/one2n-sre-ex9'
+    targetRevision: main
+    path: charts/student-db
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: student-db
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
