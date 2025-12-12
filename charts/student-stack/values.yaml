@@ -1,0 +1,98 @@
+# values.yaml (SAFE to commit — uses placeholders, no real secrets)
+
+# Namespaces we will create
+namespaces:
+  studentApi: student-api
+
+# REST API (Spring Boot)
+studentApi:
+  replicaCount: 1
+  image:
+    repository: student-api
+    # Use a pinned tag for reproducible deployments. If you build locally, set this to the local tag.
+    tag: "v1.0.0"
+    pullPolicy: IfNotPresent
+  containerPort: 8087
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 8087
+    nodePort: null
+  nodeSelector: {}
+  config:
+    springProfilesActive: "prod"
+    datasource:
+      url: "jdbc:mysql://student-db.student-api.svc.cluster.local:3306/student_db"
+      username: "student_user"
+      # placeholder — replace locally with values-secret.yaml; DO NOT put real password here
+      password: "changeme"
+
+  # resources & probes (tunable)
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# MySQL database
+studentDb:
+  replicaCount: 1
+  image:
+    repository: mysql
+    # pin to a minor/patch tag for stability (example: mysql:8.0.34). Using "8" is okay but not pinned.
+    tag: "8.0.34"
+    pullPolicy: IfNotPresent
+  containerPort: 3306
+  nodeSelector: {}
+  pvc:
+    storage: 1Gi
+
+  # MySQL credentials — placeholders only
+  mysql:
+    rootPassword: "changeme"      # placeholder — set real value in values-secret.yaml
+    database: "student_db"
+    user: "student_user"
+    password: "changeme"          # placeholder — set real value in values-secret.yaml
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+
+  livenessProbe:
+    enabled: true
+    # For MySQL you might use mysqladmin ping or test TCP port
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# General chart-level defaults
+nameOverride: ""
+fullnameOverride: ""

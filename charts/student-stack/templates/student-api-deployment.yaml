@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-api
+  namespace: {{ .Values.namespaces.studentApi }}
+  labels:
+    app: student-api
+spec:
+  replicas: {{ .Values.studentApi.replicaCount }}
+  selector:
+    matchLabels:
+      app: student-api
+  template:
+    metadata:
+      labels:
+        app: student-api
+    spec:
+{{- if .Values.studentApi.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.studentApi.nodeSelector | indent 8 }}
+{{- end }}
+      containers:
+        - name: student-api
+          image: "{{ .Values.studentApi.image.repository }}:{{ .Values.studentApi.image.tag }}"
+          imagePullPolicy: "{{ .Values.studentApi.image.pullPolicy }}"
+          ports:
+            - containerPort: {{ .Values.studentApi.containerPort }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: student-api-config
+                  key: SPRING_PROFILES_ACTIVE
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: student-api-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASSWORD

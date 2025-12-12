@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: student-api-config
+  namespace: {{ .Values.namespaces.studentApi }}
+data:
+  SPRING_PROFILES_ACTIVE: "{{ .Values.studentApi.config.springProfilesActive }}"
+  SPRING_DATASOURCE_URL: "{{ .Values.studentApi.config.datasource.url }}"

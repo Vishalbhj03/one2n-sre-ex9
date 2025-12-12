@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: student-db
+  namespace: {{ .Values.namespaces.studentApi }}
+  labels:
+    app: student-db
+spec:
+  selector:
+    app: student-db
+  ports:
+    - port: {{ .Values.studentDb.containerPort }}
+      targetPort: {{ .Values.studentDb.containerPort }}
+  type: ClusterIP

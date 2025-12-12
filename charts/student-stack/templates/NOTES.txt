@@ -1,0 +1,14 @@
+Get the application URL by running these commands (minikube):
+
+1. To see pods / services:
+  kubectl get pods,svc -n {{ .Values.namespaces.studentApi }}
+
+2. If service type is NodePort (default):
+  NODE_IP=$(minikube ip)
+  NODE_PORT=$(kubectl get svc -n {{ .Values.namespaces.studentApi }} student-api-service -o jsonpath="{.spec.ports[0].nodePort}")
+  echo "App should be reachable at: http://$NODE_IP:$NODE_PORT"
+
+3. Alternatively, port-forward the pod:
+  kubectl get pods -n {{ .Values.namespaces.studentApi }} -l app=student-api
+  kubectl port-forward -n {{ .Values.namespaces.studentApi }} svc/student-api-service 8080:{{ .Values.studentApi.service.targetPort }}
+  echo "Then visit http://127.0.0.1:8080"
